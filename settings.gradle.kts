@@ -1,1 +1,1 @@
-rootProject.name = "app.wilmo.wilmo-estimation-cache"
+rootProject.name = "app.wilmo.wilmo-valuation-cache"

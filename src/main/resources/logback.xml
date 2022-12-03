@@ -6,10 +6,10 @@
     </appender>
 
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>wilmo/log/wilmo-estimation-cache.log</file>
+        <file>wilmo/log/wilmo-valuation-cache.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- daily rollover -->
-            <fileNamePattern>wilmo/log/wilmo-estimation-cache.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>wilmo/log/wilmo-valuation-cache.%d{yyyy-MM-dd}.log</fileNamePattern>
 
             <!-- keep 45 days' worth of history capped at 1GB total size -->
             <maxHistory>45</maxHistory>
