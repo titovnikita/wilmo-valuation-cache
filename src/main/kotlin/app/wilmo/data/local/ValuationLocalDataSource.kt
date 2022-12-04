@@ -1,6 +1,7 @@
 package app.wilmo.data.local
 
-import app.wilmo.data.IDataSource
-
-class ValuationLocalDataSource : IDataSource {
+class ValuationLocalDataSource {
+    suspend fun getValuation(token: String, params: String): String {
+        TODO("Not yet implemented")
+    }
 }

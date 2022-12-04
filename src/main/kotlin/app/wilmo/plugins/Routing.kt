@@ -4,6 +4,7 @@ import app.wilmo.auth.ITokenProvider
 import app.wilmo.domain.IValuationRepository
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import org.koin.ktor.ext.inject
@@ -13,19 +14,20 @@ fun Application.configureRouting() {
 
     routing {
         val tokenProvider by inject<ITokenProvider>()
-        val jokeRepository by inject<IValuationRepository>()
+        val repository by inject<IValuationRepository>()
 
         post("/valuation") {
             val headers = call.request.headers
             val tokenHeader = headers["Token"]
             val authorizationHeader = headers["Authorization"]
+            val body = call.receiveText()
 
             if (tokenProvider.token.isBlank()) {
                 logger.error("Environmental token variable is empty!")
             }
 
-            if (tokenHeader.equals(tokenProvider.token).not()) {
-                logger.warn("Unauthorized call to caching server.")
+            if (authorizationHeader.isNullOrBlank()) {
+                logger.error("Authorization header is empty!")
 
                 call.respond(
                     status = HttpStatusCode.Unauthorized,
@@ -35,7 +37,18 @@ fun Application.configureRouting() {
                 return@post
             }
 
-            call.respondText("Hello World!")
+            if (tokenHeader.equals(tokenProvider.token).not()) {
+                logger.error("Unauthorized call to caching server.")
+
+                call.respond(
+                    status = HttpStatusCode.Unauthorized,
+                    message = "Unauthorized access to Wilmo valuation endpoint."
+                )
+
+                return@post
+            }
+
+            call.respond(repository.getValuation(authorizationHeader, body))
         }
     }
 }
