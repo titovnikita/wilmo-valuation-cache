@@ -1,28 +1,55 @@
 package app.wilmo
 
-import app.wilmo.plugins.configureKoin
-import app.wilmo.plugins.configureRouting
-import app.wilmo.plugins.configureSecurity
-import app.wilmo.plugins.configureSerialization
+import app.wilmo.plugins.*
+import io.ktor.network.tls.certificates.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.jetty.*
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import java.io.File
 
 fun main() {
-    embeddedServer(
-        Jetty,
-        port = 8080,
-        host = "0.0.0.0",
-        module = Application::module
+    val sslKeyAlias = System.getenv(ENV_VARIABLE_SSL_ALIAS)
+    val sslKeyPassword = System.getenv(ENV_VARIABLE_SSL_PASSWORD)
+
+    val keyStoreFile = File("keystore.jks")
+    val keystore = generateCertificate(
+        file = keyStoreFile,
+        keyAlias = sslKeyAlias,
+        keyPassword = sslKeyPassword,
+        jksPassword = sslKeyPassword
     )
-        .start(wait = true)
+
+    val environment = applicationEngineEnvironment {
+        connector {
+            port = 8080
+            host = "138.2.176.179"
+            rootPath = "/"
+        }
+
+        sslConnector(
+            keyStore = keystore,
+            keyAlias = sslKeyAlias,
+            keyStorePassword = { sslKeyPassword.toCharArray() },
+            privateKeyPassword = { sslKeyPassword.toCharArray() }) {
+            port = 8443
+            keyStorePath = keyStoreFile
+        }
+
+        module(Application::module)
+    }
+
+    embeddedServer(Jetty, environment).start(wait = true)
 }
 
 fun Application.module() {
+    // leave it in the first place, as some dependencies are injected in the next calls
     configureKoin()
+
     configureSerialization()
     configureSecurity()
     configureRouting()
+    configureDatabase()
 }
+
+private const val ENV_VARIABLE_SSL_ALIAS = "SSL_ALIAS"
+private const val ENV_VARIABLE_SSL_PASSWORD = "SSL_PASSWORD"

@@ -1,6 +1,6 @@
 package app.wilmo.plugins
 
-import app.wilmo.auth.ITokenProvider
+import app.wilmo.config.ITokenProvider
 import app.wilmo.domain.IValuationRepository
 import io.ktor.http.*
 import io.ktor.server.application.*

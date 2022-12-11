@@ -1,7 +1,13 @@
-import app.wilmo.auth.ITokenProvider
-import app.wilmo.auth.TokenProvider
+import app.wilmo.config.DatabaseConfigProvider
+import app.wilmo.config.IDatabaseConfigProvider
+import app.wilmo.config.ITokenProvider
+import app.wilmo.config.TokenProvider
+import app.wilmo.data.dao.IValuationDao
+import app.wilmo.data.dao.ValuationDao
 import app.wilmo.data.local.ValuationLocalDataSource
 import app.wilmo.data.remote.ValuationRemoteDataSource
+import app.wilmo.database.DatabaseFactory
+import app.wilmo.database.IDatabaseFactory
 import app.wilmo.domain.IValuationRepository
 import app.wilmo.domain.ValuationRepository
 import io.ktor.client.*
@@ -9,8 +15,9 @@ import io.ktor.client.engine.cio.*
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
-val authModule = module {
+val configModule = module {
     single<ITokenProvider> { TokenProvider() }
+    single<IDatabaseConfigProvider> { DatabaseConfigProvider() }
 }
 
 val networkModule = module {
@@ -21,8 +28,13 @@ val networkModule = module {
     }
 }
 
+val databaseModule = module {
+    single<IDatabaseFactory> { DatabaseFactory(get()) }
+    single<IValuationDao> { ValuationDao() }
+}
+
 val domainModules = module {
-    single(named(NAMED_VALUATION_LOCAL_DATA_SOURCE)) { ValuationLocalDataSource() }
+    single(named(NAMED_VALUATION_LOCAL_DATA_SOURCE)) { ValuationLocalDataSource(get()) }
     single(named(NAMED_VALUATION_REMOTE_DATA_SOURCE)) { ValuationRemoteDataSource(get()) }
     single<IValuationRepository> {
         ValuationRepository(
@@ -33,8 +45,9 @@ val domainModules = module {
 }
 
 val koinModules = listOf(
-    authModule,
+    configModule,
     networkModule,
+    databaseModule,
     domainModules
 )
 

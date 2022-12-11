@@ -1,4 +1,4 @@
-package app.wilmo.auth
+package app.wilmo.config
 
 interface ITokenProvider {
     val token: String
