@@ -19,6 +19,10 @@ gretty {
     servletContainer = "jetty9.4"
     contextPath = "/"
     logbackConfigFile = "src/main/resources/logback.xml"
+    httpsEnabled = true
+    httpsPort = 8443
+    sslKeyStorePath = "keystore/keystore.jks"
+    sslKeyStorePassword = System.getenv("SSL_PASSWORD")
 }
 
 afterEvaluate {
@@ -30,7 +34,7 @@ afterEvaluate {
 group = "app.wilmo"
 version = "0.0.1"
 application {
-    mainClass.set("app.wilmo.ApplicationKt")
+    mainClass.set("io.ktor.server.jetty.EngineMain")
 
     val isDevelopment: Boolean = project.ext.has("development")
     applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")

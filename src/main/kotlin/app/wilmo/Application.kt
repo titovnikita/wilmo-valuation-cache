@@ -11,7 +11,7 @@ fun main() {
     val sslKeyAlias = System.getenv(ENV_VARIABLE_SSL_ALIAS)
     val sslKeyPassword = System.getenv(ENV_VARIABLE_SSL_PASSWORD)
 
-    val keyStoreFile = File("keystore.jks")
+    val keyStoreFile = File("keystore/keystore.jks")
     val keystore = generateCertificate(
         file = keyStoreFile,
         keyAlias = sslKeyAlias,
@@ -20,12 +20,6 @@ fun main() {
     )
 
     val environment = applicationEngineEnvironment {
-        connector {
-            port = 8080
-            host = "138.2.176.179"
-            rootPath = "/"
-        }
-
         sslConnector(
             keyStore = keystore,
             keyAlias = sslKeyAlias,
@@ -34,8 +28,6 @@ fun main() {
             port = 8443
             keyStorePath = keyStoreFile
         }
-
-        module(Application::module)
     }
 
     embeddedServer(Jetty, environment).start(wait = true)
